@@ -1,11 +1,10 @@
 import test, { expect } from '@playwright/test'
 import { PageManager } from '../page-objects/pageManager'
-
+import { faker } from '@faker-js/faker'
 
 test.describe('Navigation', () => {
   test.beforeEach(async ({ page }) => {
     await page.goto('http://localhost:4200/')
-    
   })
 
   test('navigate to form page', async ({ page }) => {
@@ -27,7 +26,7 @@ test.describe('Navigation', () => {
     expect(page.url()).toBe('http://localhost:4200/pages/tables/smart-table')
   })
   test('navigate to date toastr page', async ({ page }) => {
-   const pm: PageManager = new PageManager(page)
+    const pm: PageManager = new PageManager(page)
     await pm.navigateTo().toastrPage()
     expect(page.url()).toBe('http://localhost:4200/pages/modal-overlays/toastr')
   })
@@ -41,10 +40,32 @@ test.describe('Navigation', () => {
 
   test('parametrized methods', async ({ page }) => {
     const pm: PageManager = new PageManager(page)
-   
+    const randomFirstName = faker.person.firstName()
+    const randomLastName = faker.person.lastName()
+    const randomFullName = faker.person.fullName({
+      firstName: randomFirstName,
+      lastName: randomLastName
+    })
+    const randomEmail = faker.internet.email({
+      firstName: randomFirstName,
+      lastName: randomLastName
+    })
+
     await pm.navigateTo().formsLayoutPage()
-    await pm.onFormLayoutPage().submitUsingTheGridFormWithCredentialAndSelectOption('test@email.com', 'my secret', 'Option 1')
-    await pm.onFormLayoutPage().submitInlineFormWithNameEmailAndCheckBox('Ano Nym', 'ano.nym@test.com', true)
+    await pm
+      .onFormLayoutPage()
+      .submitUsingTheGridFormWithCredentialAndSelectOption(
+        `${randomEmail}`,
+        'my secret',
+        'Option 1'
+      )
+    await pm
+      .onFormLayoutPage()
+      .submitInlineFormWithNameEmailAndCheckBox(
+        `${randomFullName}`,
+        `${randomEmail}`,
+        true
+      )
     await pm.navigateTo().datePickerPage()
     await pm.onDatePickerPage().selectCommonDatePickerDateFromToday(14)
     await pm.onDatePickerPage().selectDatepickerWithRangeFromToday(6, 10)
